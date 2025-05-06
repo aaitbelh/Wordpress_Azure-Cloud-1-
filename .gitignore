@@ -44,3 +44,13 @@ terraform.rc
 
 # Ignore TLS certificates
 TLScertificates/*.pem
+
+# Ignore Ansible vault files, which may contain sensitive data
+*.vault
+*.vault.yml
+*.vault.yaml
+
+# Ignore Ansible inventory files that may contain sensitive information
+inventory/
+*.inventory
+*.ini

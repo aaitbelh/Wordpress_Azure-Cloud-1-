@@ -1,9 +1,12 @@
-provider "azurerm" {
-  features {
+variable "subscription_id" {
+  description = "Azure Subscription ID"
+  type        = string
+}
 
-  }
+provider "azurerm" {
+  features {}
   # Configure the Azure provider with the required features
-  subscription_id = "put-your-subscription-id-here" # replace with your subscription ID
+  subscription_id = var.subscription_id
 }
 
 resource "azurerm_resource_group" "rg" {
