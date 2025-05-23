@@ -54,3 +54,4 @@ TLScertificates/*.pem
 inventory/
 *.inventory
 *.ini
+vars.yml

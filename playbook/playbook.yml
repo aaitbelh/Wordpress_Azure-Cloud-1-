@@ -27,6 +27,11 @@
         state: present
         update_cache: yes
 
+    - name: install git
+      apt:
+        name: git
+        state: present
+    
     - name: Add Docker’s official GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
@@ -49,14 +54,18 @@
           - docker-ce-cli
           - containerd.io
         state: present
-
-    - name: Add users to docker group
-      user:
-        name: "{{ docker_users }}"
-        groups: docker
-        append: yes
+    
+    - name: install make
+      apt:
+        name: make
         state: present
-
+    
+    - name: Add user to docker group
+      ansible.builtin.user:
+        name: azureuser
+        groups: docker
+        append: true
+        
     - name: Download Docker Compose binary
       get_url:
         url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-{{ ansible_system | lower }}-{{ ansible_architecture }}"
@@ -68,3 +77,33 @@
         name: docker
         state: started
         enabled: true
+
+    - name: Reset ssh connection to allow user changes to affect ansible user
+      ansible.builtin.meta:
+        reset_connection
+    
+    - name: Include external variables
+      include_vars: vars.yml
+
+    - name: Clone private GitHub repository
+      git:
+        repo: "https://{{ github_token }}@github.com/aaitbelh/inception_bonus.git"
+        dest: /home/azureuser/inception
+
+    - name: Ensure required directories exist for Docker volumes
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+      loop:
+        - "/home/{{ ansible_user }}/data/wp"
+        - "/home/{{ ansible_user }}/data/mariadb"
+      
+    - name : run makefile
+      command: make
+      args:
+        chdir: /home/azureuser/inception
+        
+
